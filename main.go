@@ -20,40 +20,33 @@ func readReports(reportDir string) ([][]string, error) {
 	file, err := os.Open(reportDir)
 
 	if err != nil {
-		errMsg := fmt.Errorf("error while reading the file: %s", err)
-		return nil, errMsg
+		return nil, fmt.Errorf("error while reading the file: %v", err)
 	}
 
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 
 	if err != nil {
-		errMsg := fmt.Errorf("error reading records: %s", err)
+		errMsg := fmt.Errorf("error reading records: %v", err)
 		return nil, errMsg
 	}
 
 	defer func(file *os.File) {
 		err = file.Close()
-		if err != nil {
-			return
-		}
 	}(file)
 
-	return records, nil
+	return records, err
 }
 
 func writeReports(targetDir string, records [][]string) error {
 	file, err := os.Create(fmt.Sprintf("%s.csv", targetDir))
 	if err != nil {
-		errMsg := fmt.Errorf("failure to write file: %s", err)
+		errMsg := fmt.Errorf("failure to write file: %v", err)
 		return errMsg
 	}
 
 	defer func(file *os.File) {
 		err = file.Close()
-		if err != nil {
-			return
-		}
 	}(file)
 
 	writer := csv.NewWriter(file)
@@ -63,7 +56,6 @@ func writeReports(targetDir string, records [][]string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -105,14 +97,14 @@ func searchFile(mainDir string, totalFiles int, searchedDate time.Time) (int, st
 
 		firstDate, err := time.Parse(time.RFC3339, records[0][1])
 		if err != nil {
-			errMsg := fmt.Errorf("invalid date time: %s", err)
+			errMsg := fmt.Errorf("invalid date time: %v", err)
 			return 0, "", errMsg
 		}
 
 		recordLen := len(records)
 		lastDate, err := time.Parse(time.RFC3339, records[recordLen-1][1])
 		if err != nil {
-			errMsg := fmt.Errorf("invalid date time: %s", err)
+			errMsg := fmt.Errorf("invalid date time: %v", err)
 			return 0, "", errMsg
 		}
 
@@ -141,7 +133,7 @@ func searchDate(records [][]string, searchedDate time.Time) (int, error) {
 
 		currentDate, err := time.Parse(time.RFC3339, records[midIndex][1])
 		if err != nil {
-			errMsg := fmt.Errorf("invalid date time: %s", err)
+			errMsg := fmt.Errorf("invalid date time: %v", err)
 			return -1, errMsg
 		}
 
@@ -178,14 +170,14 @@ func main() {
 	startTime, err := time.Parse(time.RFC3339, startTimeStr)
 
 	if err != nil {
-		fmt.Printf("invalid date time: %s\n", err)
+		fmt.Printf("invalid date time: %v\n", err)
 		return
 	}
 
 	endTime, err := time.Parse(time.RFC3339, endTimeStr)
 
 	if err != nil {
-		fmt.Printf("invalid date time: %s\n", err)
+		fmt.Printf("invalid date time: %v\n", err)
 		return
 	}
 
